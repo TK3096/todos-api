@@ -11,7 +11,7 @@ use serde_json::json;
 
 use crate::{
     application::usecases::todos::TodosUseCase,
-    domain::{entities::todos::AddTodoEntity, repositories::todos::TodosRepository},
+    domain::{repositories::todos::TodosRepository, value_objects::todos::AddTodoModel},
     infrastructure::app_state::repositories::todos::TodosAppState,
 };
 
@@ -30,12 +30,12 @@ pub fn routes() -> Router {
 
 pub async fn add_todo<T>(
     State(todos_use_case): State<Arc<TodosUseCase<T>>>,
-    Json(payload): Json<AddTodoEntity>,
+    Json(add_todo_model): Json<AddTodoModel>,
 ) -> impl IntoResponse
 where
     T: TodosRepository + Send + Sync,
 {
-    match todos_use_case.add(payload).await {
+    match todos_use_case.add(add_todo_model).await {
         Ok(todo) => (StatusCode::CREATED, Json(json!({"data": todo}))).into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,

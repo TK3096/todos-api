@@ -3,8 +3,8 @@ use std::sync::Arc;
 use anyhow::Result;
 
 use crate::domain::{
-    entities::todos::{AddTodoEntity, TodoEntity},
-    repositories::todos::TodosRepository,
+    entities::todos::TodoEntity, repositories::todos::TodosRepository,
+    value_objects::todos::AddTodoModel,
 };
 
 pub struct TodosUseCase<T>
@@ -34,8 +34,9 @@ where
         Ok(result)
     }
 
-    pub async fn add(&self, payload: AddTodoEntity) -> Result<TodoEntity> {
-        let result = self.todo_repository.add(payload).await?;
+    pub async fn add(&self, todo_model: AddTodoModel) -> Result<TodoEntity> {
+        let todo_entity = todo_model.to_entity();
+        let result = self.todo_repository.add(todo_entity).await?;
 
         Ok(result)
     }
