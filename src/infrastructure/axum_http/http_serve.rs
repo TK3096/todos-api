@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::{Ok, Result};
 use axum::{Router, http::Method, routing::get};
@@ -9,12 +9,25 @@ use tower_http::{
 };
 use tracing::info;
 
-use crate::infrastructure::axum_http::{default_routers, routers};
+use crate::infrastructure::{
+    app_state::repositories::users::UsersAppState,
+    axum_http::{default_routers, routers},
+};
 
 pub async fn start() -> Result<()> {
+    let user_app_state = Arc::new(UsersAppState::new());
+
     let app = Router::new()
         .fallback(default_routers::not_found)
         .nest("/todos", routers::todos::routes())
+        .nest(
+            "/users",
+            routers::users::routes(Arc::clone(&user_app_state)),
+        )
+        .nest(
+            "/authentication",
+            routers::authentication::routes(Arc::clone(&user_app_state)),
+        )
         .route("/health-check", get(default_routers::health_check))
         .layer(
             CorsLayer::new()
