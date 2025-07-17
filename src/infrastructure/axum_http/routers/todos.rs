@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
-    Json, Router,
+    Extension, Json, Router,
     extract::{Path, State},
     http::StatusCode,
     middleware,
@@ -38,13 +38,14 @@ pub fn routes() -> Router {
 
 pub async fn add_todo<T>(
     State(todos_use_case): State<Arc<TodosUseCase<T>>>,
+    Extension(user_id): Extension<String>,
     Json(add_todo_model): Json<AddTodoModel>,
 ) -> impl IntoResponse
 where
     T: TodosRepository + Send + Sync,
 {
     match add_todo_model.validate() {
-        Ok(_) => match todos_use_case.add(add_todo_model).await {
+        Ok(_) => match todos_use_case.add(user_id, add_todo_model).await {
             Ok(todo) => (StatusCode::CREATED, Json(json!({"data": todo}))).into_response(),
             Err(e) => (
                 StatusCode::INTERNAL_SERVER_ERROR,

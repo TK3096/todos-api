@@ -34,9 +34,9 @@ where
         Ok(result)
     }
 
-    pub async fn add(&self, todo_model: AddTodoModel) -> Result<TodoEntity> {
+    pub async fn add(&self, user_id: String, todo_model: AddTodoModel) -> Result<TodoEntity> {
         let todo_entity = todo_model.to_entity();
-        let result = self.todo_repository.add(todo_entity).await?;
+        let result = self.todo_repository.add(user_id, todo_entity).await?;
 
         Ok(result)
     }

@@ -42,13 +42,14 @@ impl TodosRepository for TodosAppState {
         Ok(result)
     }
 
-    async fn add(&self, payload: AddTodoEntity) -> Result<TodoEntity> {
+    async fn add(&self, user_id: String, payload: AddTodoEntity) -> Result<TodoEntity> {
         let mut todos = self.todos.lock().unwrap();
 
         let new_todo = TodoEntity {
             id: Uuid::new_v4().to_string(),
             title: payload.title,
             completed: false,
+            user_id,
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
         };
