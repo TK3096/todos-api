@@ -4,6 +4,7 @@ use axum::{
     Json, Router,
     extract::{Path, State},
     http::StatusCode,
+    middleware,
     response::IntoResponse,
     routing::{delete, get, patch, post},
 };
@@ -16,7 +17,9 @@ use crate::{
         repositories::todos::TodosRepository,
         value_objects::todos::{AddTodoModel, TodoErrorMessage},
     },
-    infrastructure::app_state::repositories::todos::TodosAppState,
+    infrastructure::{
+        app_state::repositories::todos::TodosAppState, axum_http::middleware::user_authentication,
+    },
 };
 
 pub fn routes() -> Router {
@@ -29,6 +32,7 @@ pub fn routes() -> Router {
         .route("/{id}", get(get_todo))
         .route("/to_completed/{id}", patch(to_completed))
         .route("/{id}", delete(delete_todo))
+        .route_layer(middleware::from_fn(user_authentication))
         .with_state(todos_use_case)
 }
 
