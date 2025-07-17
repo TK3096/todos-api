@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::domain::entities::todos::AddTodoEntity;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
 pub struct AddTodoModel {
+    #[validate(length(min = 1, message = "Title cannot be empty"))]
     pub title: String,
 }
 

@@ -17,11 +17,7 @@ A RESTful API for managing todo items built with Rust using Axum web framework a
 
 ### Planned Features
 - 🔜 **Authentication** - JWT-based authentication system
-- 🔜 **Request Validation** - Input validation middleware
 - 🔜 **File Persistence** - Save todos to local file storage
-
-### Planned Fixes
-- 🔧 **Error Handling** - Proper not found and error response handling
 
 
 ## Architecture

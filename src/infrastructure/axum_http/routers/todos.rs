@@ -8,6 +8,7 @@ use axum::{
     routing::{delete, get, patch, post},
 };
 use serde_json::json;
+use validator::Validate;
 
 use crate::{
     application::usecases::todos::TodosUseCase,
@@ -38,15 +39,24 @@ pub async fn add_todo<T>(
 where
     T: TodosRepository + Send + Sync,
 {
-    match todos_use_case.add(add_todo_model).await {
-        Ok(todo) => (StatusCode::CREATED, Json(json!({"data": todo}))).into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": e.to_string()
-            })),
-        )
-            .into_response(),
+    match add_todo_model.validate() {
+        Ok(_) => match todos_use_case.add(add_todo_model).await {
+            Ok(todo) => (StatusCode::CREATED, Json(json!({"data": todo}))).into_response(),
+            Err(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                    "error": e.to_string()
+                })),
+            )
+                .into_response(),
+        },
+        Err(e) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(json!({"error": e.to_string()})),
+            )
+                .into_response();
+        }
     }
 }
 
