@@ -14,3 +14,16 @@ impl AddTodoModel {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum TodoErrorMessage {
+    NotFound,
+}
+
+impl TodoErrorMessage {
+    pub fn to_string(&self) -> String {
+        match self {
+            TodoErrorMessage::NotFound => "NotFound".to_string(),
+        }
+    }
+}

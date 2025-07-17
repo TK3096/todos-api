@@ -11,7 +11,10 @@ use serde_json::json;
 
 use crate::{
     application::usecases::todos::TodosUseCase,
-    domain::{repositories::todos::TodosRepository, value_objects::todos::AddTodoModel},
+    domain::{
+        repositories::todos::TodosRepository,
+        value_objects::todos::{AddTodoModel, TodoErrorMessage},
+    },
     infrastructure::app_state::repositories::todos::TodosAppState,
 };
 
@@ -78,13 +81,23 @@ where
 {
     match todos_use_case.get(id).await {
         Ok(todo) => (StatusCode::OK, Json(json!({"data": todo}))).into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": e.to_string()
-            })),
-        )
-            .into_response(),
+        Err(e) => {
+            let error_message = e.to_string();
+
+            if error_message.contains(&TodoErrorMessage::NotFound.to_string()) {
+                (
+                    StatusCode::NOT_FOUND,
+                    Json(json!({"error": "Todo not found"})),
+                )
+                    .into_response()
+            } else {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({"error": "Internal Server Error"})),
+                )
+                    .into_response()
+            }
+        }
     }
 }
 
@@ -97,13 +110,23 @@ where
 {
     match todos_use_case.to_completed(id).await {
         Ok(todo) => (StatusCode::OK, Json(json!({"data": todo}))).into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": e.to_string()
-            })),
-        )
-            .into_response(),
+        Err(e) => {
+            let error_message = e.to_string();
+
+            if error_message.contains(&TodoErrorMessage::NotFound.to_string()) {
+                (
+                    StatusCode::NOT_FOUND,
+                    Json(json!({"error": "Todo not found"})),
+                )
+                    .into_response()
+            } else {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({"error": "Internal Server Error"})),
+                )
+                    .into_response()
+            }
+        }
     }
 }
 
@@ -116,12 +139,22 @@ where
 {
     match todos_use_case.delete(id).await {
         Ok(_) => (StatusCode::OK, Json(json!({"message": "Success" }))).into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "error": e.to_string()
-            })),
-        )
-            .into_response(),
+        Err(e) => {
+            let error_message = e.to_string();
+
+            if error_message.contains(&TodoErrorMessage::NotFound.to_string()) {
+                (
+                    StatusCode::NOT_FOUND,
+                    Json(json!({"error": "Todo not found"})),
+                )
+                    .into_response()
+            } else {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({"error": "Internal Server Error"})),
+                )
+                    .into_response()
+            }
+        }
     }
 }

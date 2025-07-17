@@ -7,6 +7,7 @@ use uuid::Uuid;
 use crate::domain::{
     entities::todos::{AddTodoEntity, TodoEntity},
     repositories::todos::TodosRepository,
+    value_objects::todos::TodoErrorMessage,
 };
 
 #[derive(Clone)]
@@ -36,7 +37,7 @@ impl TodosRepository for TodosAppState {
             .iter()
             .find(|todo| todo.id == id)
             .cloned()
-            .ok_or_else(|| anyhow::anyhow!("Todo not found"))?;
+            .ok_or_else(|| anyhow::anyhow!("{:?}", TodoErrorMessage::NotFound))?;
 
         Ok(result)
     }
@@ -68,7 +69,7 @@ impl TodosRepository for TodosAppState {
                 t.updated_at = chrono::Utc::now().naive_utc();
                 Ok(t.clone())
             }
-            None => return Err(anyhow::anyhow!("Todo not found")),
+            None => return Err(anyhow::anyhow!("{:?}", TodoErrorMessage::NotFound)),
         }
     }
 
@@ -82,7 +83,7 @@ impl TodosRepository for TodosAppState {
                 todos.remove(i);
                 Ok(())
             }
-            None => Err(anyhow::anyhow!("Todo not found")),
+            None => Err(anyhow::anyhow!("{:?}", TodoErrorMessage::NotFound)),
         }
     }
 }
